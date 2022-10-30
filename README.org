@@ -1,0 +1,7 @@
+#+title: Snake
+
+* Overview
+Classic snake game written in Common Lisp with [[https://github.com/defun-games/claylib][Claylib]].
+
+* License
+*GPL-3.0+* - you have the freedom to run, copy, distribute, study, change and improve the software. See the =COPYING= file for details.
