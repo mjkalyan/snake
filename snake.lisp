@@ -155,8 +155,7 @@ as long as the snake.")
                                          *px-per-seg* *px-per-seg*
                                          +orange+
                                          :filled nil
-                                         :thickness 3))))))
-  (print "Init done..."))
+                                         :thickness 3)))))))
 
 (defun main ()
   (initialize)
