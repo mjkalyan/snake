@@ -137,10 +137,10 @@ as long as the snake.")
 (defun initialize ()
   "Initialize all global variables."
 
-  (defparameter *board-size* 30
+  (defparameter *board-size* 40
     "The number of x & y segments length of the game board.")
 
-  (defparameter *px-per-seg* 20
+  (defparameter *px-per-seg* 15
     "How many pixels an edge of a segment is.")
 
   (defparameter *easing* 2
@@ -168,21 +168,20 @@ as long as the snake.")
         (do-game-loop (:livesupport t
                        :vars ((diedp nil)
                               (frame-counter 0)
-                              (frame-speed 1/124)))
+                              (frame-speed 1/64)))
           (if diedp
               (let ((restartp (prompt-restart snake)))
                 (when restartp
                   (reset snake food)
                   (setf diedp nil)))
-              (progn
+              (when (>= (incf frame-counter) (/ 60 frame-speed))
                 (maybe-change-heading snake)
-                (when (>= (incf frame-counter) (/ 60 frame-speed))
-                  (setf frame-counter 0)
-                  (update-trail snake)
-                  (case (check-collisions snake food)
-                    (:die (setf diedp t))
-                    (:eat (progn (setf (should-grow snake) t)
-                                 (new-pos food snake))))
-                  (with-drawing (:bgcolor +black+)
-                    (draw-object food)
-                    (draw-snake snake))))))))))
+                (setf frame-counter 0)
+                (update-trail snake)
+                (case (check-collisions snake food)
+                  (:die (setf diedp t))
+                  (:eat (progn (setf (should-grow snake) t)
+                               (new-pos food snake))))
+                (with-drawing (:bgcolor +black+)
+                  (draw-object food)
+                  (draw-snake snake)))))))))
