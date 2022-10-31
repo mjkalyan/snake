@@ -17,7 +17,7 @@
   (alexandria:random-elt (list :up :down :left :right)))
 
 (defun random-starting-trail (heading length)
-  "Based on HEADING, pick a starting trail (position and size) for a snake."
+  "Based on HEADING and LENGTH, pick a starting trail (position and size) for a snake."
   (loop for i from 1 to length
         with (x y) = (list (/ *board-size* 2) (/ *board-size* 2))
         for (xoff yoff) = (case heading
@@ -44,17 +44,17 @@ as long as the snake.")
     (make-instance 'snake :trail trail :heading heading)))
 
 (defun overlapping-p (seg1 seg2)
-  "Are these segments overlapping?"
+  "Are segments SEG1 & SEG2 overlapping?"
   (and (= (elt seg1 0) (elt seg2 0))
        (= (elt seg1 1) (elt seg2 1))))
 
 (defun hitting-wall-p (head)
-  "Is the head hitting a wall?"
+  "Is the HEAD trail segment hitting a wall?"
   (or (not (< -1 (elt head 0) *board-size*))
       (not (< -1 (elt head 1) *board-size*))))
 
 (defun check-collisions (snake food)
-  "Has the snake has collided with something? If so, should we eat it or die?"
+  "When the SNAKE collides with FOOD, a wall, or itself, return the appropriate action (:EAT/:DIE)"
   (let ((head (car (trail snake))))
     (cond ((overlapping-p head
                           ;; TODO not efficient, maybe food should have its own logical pos
@@ -67,7 +67,7 @@ as long as the snake.")
            :die))))
 
 (defun maybe-change-heading (snake)
-  "Change the snake's heading when indicated by the player."
+  "Change the SNAKE's heading based on player input."
   (setf (heading snake)
         (cond ((and (is-key-pressed-p +key-up+)
                     (not (eq (heading snake) :down)))
@@ -84,7 +84,7 @@ as long as the snake.")
               (t (heading snake)))))
 
 (defun update-trail (snake)
-  "Move the snake, growing it when needed."
+  "Move the SNAKE, growing it when needed."
   (let ((new-segment (alexandria:copy-array (car (trail snake)))))
     (case (heading snake)
       (:right (incf (elt new-segment 0)))
@@ -98,7 +98,7 @@ as long as the snake.")
               (cons new-segment (butlast (trail snake)))))))
 
 (defun new-pos (food snake)
-  "Place the food at location not occupied by snake."
+  "Place FOOD at a location not occupied by SNAKE."
   (loop for xy = (make-coords)
         when (notany (lambda (snake-seg)
                        (overlapping-p xy snake-seg))
@@ -107,7 +107,7 @@ as long as the snake.")
                        (y food) (logical->px (elt xy 1)))))
 
 (defun draw-snake (snake)
-  "Draw each segment of the snake."
+  "Draw each segment of the SNAKE."
   (loop for segment in (trail snake)
         do (claylib/ll:draw-rectangle (logical->px (elt segment 0))
                                       (logical->px (elt segment 1))
@@ -116,7 +116,7 @@ as long as the snake.")
                                       (claylib::c-struct +green+))))
 
 (defun prompt-restart (snake)
-  "Ask the player if they want to start again."
+  "Ask the player if they want to start again, displaying some info about SNAKE."
   (with-drawing (:bgcolor +black+)
     (claylib/ll:draw-text
      (format nil "You died with a length of ~a!~%SPC to restart or ESC to ext."
@@ -128,7 +128,7 @@ as long as the snake.")
   (is-key-pressed-p +key-space+))
 
 (defun reset (snake food)
-  "Reset the snake and food."
+  "Reset the SNAKE and FOOD."
   (setf (heading snake) (random-heading)
         (trail snake) (random-starting-trail (heading snake) 3)
         (should-grow snake) nil)
